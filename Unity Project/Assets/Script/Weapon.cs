@@ -27,9 +27,9 @@ public class Weapon : MonoBehaviour
     IEnumerator Weird()
     {
         yield return new WaitForSeconds(0.1f);
-        weaponCollider.gameObject.SetActive(true);
+        weaponCollider.enabled = true;
 
         yield return new WaitForSeconds(0.4f);
-        weaponCollider.gameObject.SetActive(false);
+        weaponCollider.enabled = false;
     }
 }

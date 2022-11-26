@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -9,8 +10,13 @@ public class PlayerController : MonoBehaviour
 
     Rigidbody playerRigid;
     Animator animator;
-
+    public Image hp;
+    public Image mp;
+    public bool isDead = false;
     public float speed = 3f;
+
+    bool isDamaged = false;
+
     float horizontal, vertical;
     Vector3 moveVec;
 
@@ -25,6 +31,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponentInChildren<Animator>();
         // 나중에 바꿔야함
         weapon = GetComponentInChildren<Weapon>();
+        hp.fillAmount = curHp/100;
+        mp.fillAmount = 1;
     }
 
     // Update is called once per frame
@@ -32,7 +40,32 @@ public class PlayerController : MonoBehaviour
     {
         PlayerMove();
     }
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "EnemyCollider"&&!isDamaged)
+        {
+            //약간 뒤로 충격 + 1초정도 무적 코루틴으로
+            Debug.Log("적에게 맞음!");
+            curHp -= other.gameObject.GetComponentInParent<Enemy>().damage;
+            hp.fillAmount = curHp / 100.0f;
+
+            if (curHp <= 0) Died();
+
+            StartCoroutine("Damaged");
+        }
+    }
+    IEnumerator Damaged()
+    {
+        yield return new WaitForSeconds(0.1f);
+        isDamaged = true;
+        yield return new WaitForSeconds(0.6f);
+        isDamaged = false;
+
+    }
+    public void Died()
+    {
+        Debug.Log("플레이어 사망");
+    }
     void PlayerMove()
     {
         horizontal = Input.GetAxis("Horizontal");
@@ -63,8 +96,6 @@ public class PlayerController : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0))
         {
-            
-
             // 
             if(swingDelay+lastSwing<Time.time)
             {
@@ -73,8 +104,6 @@ public class PlayerController : MonoBehaviour
                 weapon.UseWeapon();
                 lastSwing = Time.time;
             }
-
-            
         }
     }
 
